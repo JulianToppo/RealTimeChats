@@ -1,5 +1,5 @@
 const socket = new WebSocket("ws://localhost:3000");
-
+let username=prompt("Please enter your name");
 let currentRoom = null;
 
 // when connection opens
@@ -25,10 +25,23 @@ function joinRoom() {
 
   socket.send(JSON.stringify({
     type: "join-room",
-    roomId
+    roomId,
+    username,
   }));
 
   showMessage(`Joined room: ${roomId}`);
+  loadMessages(roomId);
+}
+
+
+async function loadMessages(roomId) {
+  const res = await axios.get("http://localhost:3000"+`/messages/${roomId}`);
+  const messages = await res.data;
+
+  messages.forEach(msg => {
+    console.log(msg);
+    showMessage(msg.username+':' +msg.message);
+  });
 }
 
 // send message
@@ -44,7 +57,8 @@ function sendMessage() {
     type: "message",
     data:{
         message:message,
-        roomID:currentRoom
+        roomID:currentRoom,
+        username:username
     }
   }));
 
@@ -58,6 +72,9 @@ function showMessage(msg) {
   const div = document.createElement("div");
   div.className = "msg";
   div.innerText = msg;
+
+  
+  if(m)
 
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;

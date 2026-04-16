@@ -2,7 +2,8 @@ const { Schema, model } = require("mongoose");
 
 const MessagesSchema= new Schema({
     message:String,
-    roomId:Number
+    roomId:Number,
+    username:String
 }) 
 
 

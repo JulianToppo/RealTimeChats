@@ -50,19 +50,20 @@ const sendMessage = async (data)=> {
     try   
     {
 
-        const {message,roomID}=data;
+        const {message,roomID,username}=data;
         
       console.log( data);
       const savedMessage = await Messages.create({
         message: message,
-        roomId: roomID
+        roomId: roomID,
+        username:username
       });
 
       
   
       broadcastToRoom(roomID, {
         type: "NEW_MESSAGE",
-        data: message,
+        data: `${username}:${message}`,
       });
   
       // res.json({
@@ -81,10 +82,23 @@ const sendMessage = async (data)=> {
   };
   
 
+  const getMessagesForRoom= async (req,res)=>{
+    try {
+      const messages = await Messages.find({
+        roomId: req.params.roomId,
+      }).sort({ createdAt: 1 });
+    
+      res.json(messages);
+      
+    } catch (error) {
+      res.send({err:error})
+    }
+  }
 
 
 module.exports={
     testingControllerRequestHandler,
     addingVaues,
-    sendMessage
+    sendMessage,getMessagesForRoom
+    
 }

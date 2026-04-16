@@ -1,10 +1,13 @@
 
 const rooms = new Map();
 
-const joinRoom = (roomId, ws) => {
+const joinRoom = (userData, ws) => {
+
+  const{username,roomId}=userData;
   if (!rooms.has(roomId)) rooms.set(roomId, new Set());
   rooms.get(roomId).add(ws);
   ws.roomId = roomId;
+  ws.username=username;
 
 
   console.log(rooms);

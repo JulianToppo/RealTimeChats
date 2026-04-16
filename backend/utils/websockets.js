@@ -11,7 +11,11 @@ const creatingWebSocketConnection = (server) => {
       const data = JSON.parse(msg.toString());
 
       if (data.type === "join-room") {
-        joinRoom(data.roomId, ws);
+        let userData= {
+          roomId:data.roomId,
+          username:data.username
+        }
+        joinRoom(userData, ws);
       }else {
         if(data.type ==="message"){
           console.log("message event triggered in the backend")
