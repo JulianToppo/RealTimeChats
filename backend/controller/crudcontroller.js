@@ -1,5 +1,7 @@
+const Messages = require("../model/messages")
 const User = require("../model/user")
 const path= require("path")
+const { broadcastToRoom } = require("../utils/wsService")
 // Testing the structure
 const testingControllerRequestHandler= (req,res,next)=>{
     try {
@@ -44,7 +46,45 @@ const addingVaues=async (req,res,next)=>{
 //updates values
 
 
+const sendMessage = async (data)=> {
+    try   
+    {
+
+        const {message,roomID}=data;
+        
+      console.log( data);
+      const savedMessage = await Messages.create({
+        message: message,
+        roomId: roomID
+      });
+
+      
+  
+      broadcastToRoom(roomID, {
+        type: "NEW_MESSAGE",
+        data: message,
+      });
+  
+      // res.json({
+      //   success: true,
+      //   message: "Message sent",
+      //   data: savedMessage,
+      // });
+  
+    } catch (error) {
+      console.error(error);
+      // res.status(500).json({
+      //   success: false,
+      //   error: error.message,
+      // });
+    }
+  };
+  
+
+
+
 module.exports={
     testingControllerRequestHandler,
-    addingVaues
+    addingVaues,
+    sendMessage
 }

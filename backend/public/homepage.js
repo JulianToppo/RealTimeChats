@@ -1,28 +1,64 @@
 const socket = new WebSocket("ws://localhost:3000");
 
-// connection open
+let currentRoom = null;
+
+// when connection opens
 socket.onopen = () => {
-    console.log("Connected to server");
-    
-    // send message to server
-    socket.send(JSON.stringify({
-        type: "message",
-        text: "Hello from client"
-    }));
+  console.log("Connected to server");
 };
 
-// receive message from server
+// receive messages from server
 socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log("Message from server:", data);
+  const data = JSON.parse(event.data);
+
+  console.log(data);
+
+  if (data.type === "NEW_MESSAGE") {
+    showMessage(data.data);
+  }
 };
 
-// connection closed
-socket.onclose = () => {
-    console.log("Disconnected from server");
-};
+// join room
+function joinRoom() {
+  const roomId = document.getElementById("roomInput").value;
+  currentRoom = roomId;
 
-// error handling
-socket.onerror = (error) => {
-    console.error("WebSocket error:", error);
-};
+  socket.send(JSON.stringify({
+    type: "join-room",
+    roomId
+  }));
+
+  showMessage(`Joined room: ${roomId}`);
+}
+
+// send message
+function sendMessage() {
+  const message = document.getElementById("msgInput").value;
+
+  if (!currentRoom) {
+    alert("Join a room first");
+    return;
+  }
+
+  socket.send(JSON.stringify({
+    type: "message",
+    data:{
+        message:message,
+        roomID:currentRoom
+    }
+  }));
+
+  document.getElementById("msgInput").value = "";
+}
+
+// show message in UI
+function showMessage(msg) {
+  const chatBox = document.getElementById("chatBox");
+
+  const div = document.createElement("div");
+  div.className = "msg";
+  div.innerText = msg;
+
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}

@@ -1,20 +1,40 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>This is the homepage</h1>
+  <title>Group Chat</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
 
-    <form>
-        <input type="text" placeholder="Enter your message" id="textfrominput"/>
-        <button>Send</button>
-        
-    </form>
-    <script src="./homepage.js" ></script>
+    #chatBox {
+      border: 1px solid #a23131;
+      height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .msg {
+      padding: 5px;
+      margin: 5px 0;
+      background: #f1f1f1;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Group Chat</h2>
+
+  <input id="roomInput" placeholder="Enter Room ID" />
+  <button onclick="joinRoom()">Join Room</button>
+
+  <div id="chatBox"></div>
+
+  <input id="msgInput" placeholder="Type message..." />
+  <button onclick="sendMessage()">Send</button>
+
+  <script src="./homepage.js"></script>
+
 </body>
 </html>
