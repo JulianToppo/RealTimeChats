@@ -1,5 +1,5 @@
 const { WebSocketServer } = require("ws");
-const { joinRoom } = require("./wsService");
+const { joinRoom, typingIndicator } = require("./wsService");
 const { sendMessage } = require("../controller/crudcontroller");
 
 const creatingWebSocketConnection = (server) => {
@@ -21,7 +21,14 @@ const creatingWebSocketConnection = (server) => {
           console.log("message event triggered in the backend")
             sendMessage(data.data)
         }
+      else {
+        if(data.type=="typing"){
+          console.log("this is being triggered")
+          const {isTyping}=data;
+        typingIndicator(ws,isTyping);
       }
+    }
+  }
 
     });
   });

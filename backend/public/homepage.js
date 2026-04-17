@@ -1,6 +1,8 @@
 const socket = new WebSocket("ws://localhost:3000");
-let username=prompt("Please enter your name");
+let username = prompt("Please enter your name");
 let currentRoom = null;
+const input = document.getElementById("msgInput");
+let typingTimeout;
 
 // when connection opens
 socket.onopen = () => {
@@ -15,6 +17,14 @@ socket.onmessage = (event) => {
 
   if (data.type === "NEW_MESSAGE") {
     showMessage(data.data);
+  } else {
+    if (data.type === "typing") {
+      if (data.isTyping) {
+        typingIndicator.innerText = `${data.username} is typing...`;
+      } else {
+        typingIndicator.innerText = "";
+      }
+    }
   }
 };
 
@@ -23,24 +33,25 @@ function joinRoom() {
   const roomId = document.getElementById("roomInput").value;
   currentRoom = roomId;
 
-  socket.send(JSON.stringify({
-    type: "join-room",
-    roomId,
-    username,
-  }));
+  socket.send(
+    JSON.stringify({
+      type: "join-room",
+      roomId,
+      username,
+    })
+  );
 
   showMessage(`Joined room: ${roomId}`);
   loadMessages(roomId);
 }
 
-
 async function loadMessages(roomId) {
-  const res = await axios.get("http://localhost:3000"+`/messages/${roomId}`);
+  const res = await axios.get("http://localhost:3000" + `/messages/${roomId}`);
   const messages = await res.data;
 
-  messages.forEach(msg => {
+  messages.forEach((msg) => {
     console.log(msg);
-    showMessage(msg.username+':' +msg.message);
+    showMessage(msg.username + ":" + msg.message);
   });
 }
 
@@ -53,14 +64,16 @@ function sendMessage() {
     return;
   }
 
-  socket.send(JSON.stringify({
-    type: "message",
-    data:{
-        message:message,
-        roomID:currentRoom,
-        username:username
-    }
-  }));
+  socket.send(
+    JSON.stringify({
+      type: "message",
+      data: {
+        message: message,
+        roomID: currentRoom,
+        username: username,
+      },
+    })
+  );
 
   document.getElementById("msgInput").value = "";
 }
@@ -73,9 +86,21 @@ function showMessage(msg) {
   div.className = "msg";
   div.innerText = msg;
 
-  
-  if(m)
-
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
+
+input.addEventListener("input", () => {
+  // typing start
+  if (currentRoom) {
+    console.log("Event listerner for typing called")
+    socket.send(JSON.stringify({ type: "typing", roomID:currentRoom,isTyping: true }));
+
+    // debounce logic
+    clearTimeout(typingTimeout);
+
+    typingTimeout = setTimeout(() => {
+      socket.send(JSON.stringify({ type: "typing", roomID:currentRoom,isTyping: false }));
+    }, 1000);
+  }
+});

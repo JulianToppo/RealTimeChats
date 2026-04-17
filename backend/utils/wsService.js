@@ -29,7 +29,27 @@ const broadcastToRoom = (roomId, data) => {
   }
 };
 
+const typingIndicator=(ws,isTyping)=>{
+  const clients = rooms.get(ws.roomId);
+
+  clients?.forEach((client) => {
+    if (
+      client !== ws
+    ) {
+      client.send(
+        JSON.stringify({
+          type: "typing",
+          username: ws.username,
+          isTyping,
+        })
+      );
+    }
+  });
+}
+
+
 module.exports = {
   joinRoom,
   broadcastToRoom,
+  typingIndicator
 };
