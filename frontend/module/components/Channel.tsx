@@ -12,7 +12,7 @@ export default function ChannelPanel({ loading }: { loading: boolean }) {
           </>
         ) : (
           <>
-            <h2 className="font-semibold">OG Esport</h2>
+            <h2 className="font-semibold">SubChats</h2>
             <p className="text-sm text-zinc-400"># general</p>
           </>
         )}
