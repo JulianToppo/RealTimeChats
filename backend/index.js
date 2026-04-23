@@ -7,16 +7,19 @@ const { WebSocket, WebSocketServer } = require("ws");
 const http = require("http");
 const { creatingWebSocketConnection } = require("./utils/websockets");
 const app = express();
+const cors= require("cors");
 
 app.use(express.urlencoded({ extended: "true" }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
+app.use(cors());
 const port = 3000;
 
 const server = http.createServer(app);
 const wss = creatingWebSocketConnection(server);
 
 app.set("wss", wss);
+
 
 app.use(routes);
 
