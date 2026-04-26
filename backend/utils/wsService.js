@@ -29,9 +29,11 @@ const broadcastToRoom = (ws, data) => {
   }
 };
 
-const typingIndicator=(ws,isTyping)=>{
-  const clients = rooms.get(ws.roomId);
+const typingIndicator=(ws,data)=>{
+  const { roomId, username, isTyping } = data;
+  const clients = rooms.get(ws.roomId) || [];
 
+  console.log(clients,roomId,username ,isTyping);
   clients?.forEach((client) => {
     if (
       client !== ws
@@ -39,8 +41,10 @@ const typingIndicator=(ws,isTyping)=>{
       client.send(
         JSON.stringify({
           type: "typing",
-          username: ws.username,
-          isTyping,
+         data:{
+          username:username,
+          isTyping:isTyping
+         }
         })
       );
     }
@@ -61,10 +65,21 @@ const broadcastToAll = (data) => {
   
 };
 
+const disconnectUserConnections= (ws,roomId)=>{
+  if (roomId && rooms.has(roomId)) {
+    const clients = rooms.get(roomId);
+    clients.delete(ws); 
+
+    if (clients.size === 0) {
+      rooms.delete(roomId);
+    }
+  }
+};
 
 module.exports = {
   joinRoom,
   broadcastToRoom,
   typingIndicator,
-  broadcastToAll
+  broadcastToAll,
+  disconnectUserConnections
 };

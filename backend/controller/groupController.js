@@ -1,3 +1,5 @@
+const { broadcastToAll } = require("../utils/wsService");
+
 let groups = [
     {
       id: "group-1",
@@ -19,21 +21,22 @@ let groups = [
   const getGroups = (req, res) => {
     const { userId } = req.query;
   
-    if (!userId) {
-      return res.status(400).json({ error: "userId required" });
-    }
+    // if (!userId) {
+    //   return res.status(400).json({ error: "userId required" });
+    // }
   
     //The user is part of the group based on two combinations
-    const userGroups = groups.filter(
-      (group) =>
-        group.members.includes(userId) ||
-        group.admins.includes(userId)
-    );
+    // const userGroups = groups.filter(
+    //   (group) =>
+    //     group.members.includes(userId) ||
+    //     group.admins.includes(userId)
+    // );
   
-    res.json(userGroups);
+    res.json(groups); // returing all the groups for now
   };
 
 const addGroup = (req, res) => {
+  
     const { name, admins = [] } = req.body;
   
     if (!name || name.trim().length === 0) {
@@ -56,7 +59,7 @@ const addGroup = (req, res) => {
   
     groups.push(newGroup);
   
-  
+    broadcastToAll(newGroup)
     res.status(201).json(newGroup);
   };
 

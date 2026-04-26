@@ -1,5 +1,5 @@
 const { WebSocketServer } = require("ws");
-const { joinRoom, typingIndicator, broadcastToRoom } = require("./wsService");
+const { joinRoom, typingIndicator, broadcastToRoom, disconnectUserConnections } = require("./wsService");
 const { sendMessage } = require("../controller/crudcontroller");
 
 const creatingWebSocketConnection = (server) => {
@@ -28,13 +28,26 @@ const creatingWebSocketConnection = (server) => {
       else {
         if(data.type=="typing"){
           console.log("this is being triggered")
-          const {isTyping}=data;
-        typingIndicator(ws,isTyping);
+          
+        typingIndicator(ws,data.data);
       }
     }
   }
 
     });
+
+    ws.on("close", () => {
+      
+      if(ws.roomId ){
+        console.log("user disconnected", ws.username);
+        disconnectUserConnections(ws,ws.roomId);
+      }
+      
+    })
+
+
+
+
   });
 
   return wss;
