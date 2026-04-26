@@ -1,5 +1,5 @@
 const { WebSocketServer } = require("ws");
-const { joinRoom, typingIndicator } = require("./wsService");
+const { joinRoom, typingIndicator, broadcastToRoom } = require("./wsService");
 const { sendMessage } = require("../controller/crudcontroller");
 
 const creatingWebSocketConnection = (server) => {
@@ -8,18 +8,22 @@ const creatingWebSocketConnection = (server) => {
   wss.on("connection", (ws) => {
     console.log("connection is created");
     ws.on("message", (msg) => {
+      
       const data = JSON.parse(msg.toString());
+      
 
       if (data.type === "join-room") {
-        let userData= {
-          roomId:data.roomId,
-          username:data.username
-        }
-        joinRoom(userData, ws);
+        console.log("Join room called")
+        // console.log(data.roomId)
+        // let userData= {
+        //   roomId:data.data.roomId,
+        //   username:data.data.username
+        // }
+        joinRoom(data.data, ws);
       }else {
         if(data.type ==="message"){
-          console.log("message event triggered in the backend")
-            sendMessage(data.data)
+          console.log("message event triggered in the backend",data.data)
+            broadcastToRoom(ws,data.data)
         }
       else {
         if(data.type=="typing"){

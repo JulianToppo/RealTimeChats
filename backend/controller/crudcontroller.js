@@ -46,31 +46,28 @@ const addingVaues=async (req,res,next)=>{
 //updates values
 
 
-const sendMessage = async (data)=> {
+const sendMessage = async (req,res)=> {
     try   
     {
 
-        const {message,roomID,username}=data;
+        const {message,roomId,username}=req.body;
         
-      console.log( data);
+      // console.log( data);
       const savedMessage = await Messages.create({
         message: message,
-        roomId: roomID,
+        roomId: roomId,
         username:username
       });
 
       
   
-      broadcastToRoom(roomID, {
-        type: "NEW_MESSAGE",
-        data: `${username}:${message}`,
-      });
+   
   
-      // res.json({
-      //   success: true,
-      //   message: "Message sent",
-      //   data: savedMessage,
-      // });
+      res.json({
+        success: true,
+        message: "Message sent",
+        data: savedMessage,
+      });
   
     } catch (error) {
       console.error(error);

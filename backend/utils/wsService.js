@@ -13,9 +13,9 @@ const joinRoom = (userData, ws) => {
   console.log(rooms);
 };
 
-const broadcastToRoom = (roomId, data) => {
-
-  const room = rooms.get(roomId);
+const broadcastToRoom = (ws, data) => {
+  console.log("broadcast to rooms called")
+  const room = rooms.get(ws.roomId);
   
   console.log(rooms.size ,data)
   if (!room) return;
@@ -24,7 +24,7 @@ const broadcastToRoom = (roomId, data) => {
   for (const client of room) {
     // console.log(client);
     if (client.readyState === 1) {
-      client.send(JSON.stringify(data));
+      client.send(JSON.stringify({type:"message",data:data}));
     }
   }
 };
@@ -47,9 +47,24 @@ const typingIndicator=(ws,isTyping)=>{
   });
 }
 
+const broadcastToAll = (data) => {
+  
+  const broadcastToAll = (data) => {
+    for (const room of rooms.values()) {
+      for (const client of room) {
+        if (client.readyState === 1) {
+          client.send(JSON.stringify({type:"new-group",...data}));
+        }
+      }
+    }
+  };
+  
+};
+
 
 module.exports = {
   joinRoom,
   broadcastToRoom,
-  typingIndicator
+  typingIndicator,
+  broadcastToAll
 };
