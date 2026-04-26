@@ -46,13 +46,15 @@ export default function ChatPage({user}:User) {
   }
 
   const [loading, setLoading] = useState(true);
+  
   const [rooms, setRooms] = useState<Room[]>([]);
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
+  
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
 
 
-  const { joinRoom, sendMessage:socketSendMessage } = useSocket((data) => {
+  const { joinRoom, sendMessage:socketSendMessage ,socketEmitTyping} = useSocket((data) => {
 
   
 
@@ -62,7 +64,18 @@ export default function ChatPage({user}:User) {
     }
   
     if (data.type === "typing") {
-      setIsTyping(data.data?.isTyping);
+      const { username, isTyping } = data.data;
+
+      console.log("Values reciebed for typing", username, isTyping)
+    
+      setTypingUsers((prev) => {
+        if (isTyping) {
+          if (prev.includes(username)) return prev;
+          return [...prev, username];
+        } else {
+          return prev.filter((u) => u !== username);
+        }
+      });
     }
 
     if (data.type === "new-group") {
@@ -92,6 +105,8 @@ export default function ChatPage({user}:User) {
 
   useEffect(() => {
     if (!currentRoom) return;
+
+    setTypingUsers([]);
   
     const fetchMessages = async () => {
       try {
@@ -188,7 +203,7 @@ export default function ChatPage({user}:User) {
           <Channel loading={loading} />
   
           {/* Chat */}
-          <ChatArea loading={loading}   currentRoom={currentRoom} chatArr={messages} sendMessage={sendMessage} />
+          <ChatArea loading={loading}   currentRoom={currentRoom} chatArr={messages} sendMessage={sendMessage} typingUsers={typingUsers} socketEmitTyping={socketEmitTyping} username={user.username}/>
   
           {/* Info */}
           <RightInfoPanel loading={loading} />

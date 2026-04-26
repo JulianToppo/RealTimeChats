@@ -51,8 +51,18 @@ export function useSocket(onMessage: (data: any) => void) {
     });
   };
 
+  const socketEmitTyping = (roomId: string, username: string, isTyping: boolean) => {
+    send({
+        type: "typing",
+        data: { roomId, username, isTyping }
+      });
+    
+  };
+
   return {
     joinRoom,
     sendMessage,
+    socketEmitTyping
+    
   };
 }
