@@ -1,27 +1,49 @@
+"use client"
 import { Skeleton } from "@/components/ui/skeleton";
+import { Message } from "./ChatPage";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+
 
 
 type ChatPageProps = {
   loading: boolean;
-  chatArr: string[];
+  currentRoom:string|null;
+  chatArr: Message[];
+  sendMessage:(msq:string)=>void ;
+  
 };
 
 
-export default function ChatArea({ loading ,chatArr}:ChatPageProps) {
+export default function ChatArea({ loading ,currentRoom,chatArr, sendMessage}:ChatPageProps) {
+ 
+
+  const [message, setmessage] = useState("")
+
+  const handleSend = () => {
+    if (!message.trim()) return;
+  
+    sendMessage(message);
+    setmessage(""); // clear input
+  };
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col h-full overflow-hidden ">
         
         {/* Header */}
         <div className="border-b border-zinc-800 p-4">
           {loading ? (
             <Skeleton className="h-5 w-40" />
           ) : (
-            <span># General</span>
+            <>
+                <span># General</span>
+            <span> in {currentRoom}</span>
+            </>
+        
           )}
         </div>
   
         {/* Messages */}
-        <div className="flex-1 p-4 space-y-6 overflow-y-auto">
+        <div className="flex-1 p-4  space-y-3 overflow-y-auto">
           {loading
             ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="flex gap-3">
@@ -33,13 +55,14 @@ export default function ChatArea({ loading ,chatArr}:ChatPageProps) {
                 </div>
               ))
             : (
+              
               chatArr.map((arrval,index)=>{
                 return (
-                  <div className="flex gap-3">
+                  <div className="flex gap-3" key={arrval._id.toString()}>
                   <div className="h-10 w-10 bg-indigo-500 rounded-full" />
                   <div>
-                    <p className="text-sm font-medium">Username</p>
-                    <p className="text-sm text-zinc-300">{arrval}</p>
+                    <p className="text-sm font-medium">{arrval.username}</p>
+                    <p className="text-sm text-zinc-300">{arrval.message}</p>
                   </div>
                 </div>
                 )
@@ -53,10 +76,20 @@ export default function ChatArea({ loading ,chatArr}:ChatPageProps) {
           {loading ? (
             <Skeleton className="h-10 w-full rounded-xl" />
           ) : (
-            <input
+            <div className={"flex"}>
+                        <input
+            type="text"
+            value={message}
               placeholder="Type a message..."
               className="w-full rounded-xl bg-zinc-800 px-4 py-2 outline-none"
+              onChange={(e) => setmessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSend();
+              }}
             />
+            <Button  onClick={handleSend}> Send</Button>
+            </div>
+
           )}
         </div>
       </div>
